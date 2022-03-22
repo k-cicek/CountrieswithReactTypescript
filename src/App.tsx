@@ -1,10 +1,14 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Country from "./components/country";
+import Loading from "./components/loading";
 import { CountryType } from "./types";
 
 function App() {
   const [countries, setCountries] = useState<CountryType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const getCountries = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get<CountryType[]>(
         "https://restcountries.com/v2/all"
@@ -12,6 +16,8 @@ function App() {
       setCountries(data);
     } catch {
       console.log("An error occurred while importing countries.");
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -21,13 +27,11 @@ function App() {
   console.log({ countries });
   return (
     <div>
-      {countries.map((country) => {
-        return (
-          <p>
-            {country.name} - {country.capital}{" "}
-          </p>
-        );
-      })}
+      <Loading loading={loading}>
+        {countries.map((country) => {
+          return <Country key={country.name} country={country} />;
+        })}
+      </Loading>
     </div>
   );
 }
